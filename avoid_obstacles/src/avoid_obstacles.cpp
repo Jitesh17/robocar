@@ -30,13 +30,15 @@ void Listener::chatterCallback(const avoid_obstacles::BoundingBoxes::ConstPtr& m
   //ROS_INFO("I heard bounding_box: [%d]", num);
   for(int i = 0; i< num ;i++){
   int number=i;
-  Class_name = msg->bounding_boxes[i].class_name.c_str();
-  prob = msg->bounding_boxes[i].probability;
-  x_min = msg->bounding_boxes[i].xmin;
-  x_max = msg->bounding_boxes[i].xmax;
-  y_min = msg->bounding_boxes[i].ymin;
-  y_max = msg->bounding_boxes[i].ymax;
-  if (real_y_max < y_max)
+  if(msg->bounding_boxes[i].ymax<400){
+    Class_name = msg->bounding_boxes[i].class_name.c_str();
+    prob = msg->bounding_boxes[i].probability;
+    x_min = msg->bounding_boxes[i].xmin;
+    x_max = msg->bounding_boxes[i].xmax;
+    y_min = msg->bounding_boxes[i].ymin;
+    y_max = msg->bounding_boxes[i].ymax;
+  }
+  if (real_y_max < y_max && prob > 0.4 )//&& Class_name!="chair")
   {
     real_y_max = y_max;
   }
@@ -53,7 +55,7 @@ void Listener::chatterCallback(const avoid_obstacles::BoundingBoxes::ConstPtr& m
 }
 int main(int argc, char **argv)
 {
-
+  
   //ros::init(argc, argv, "listener");  
   ros::init(argc, argv, "obstacle_avoidance");   
   ros::NodeHandle n;   
@@ -69,7 +71,7 @@ int main(int argc, char **argv)
   ros::Rate loop_rate(10);   
   
   //ROS_INFO( bb_sub);
-  
+  int last_speed = 0;
   int count = 0;
   while (ros::ok())
   {
@@ -80,27 +82,29 @@ int main(int argc, char **argv)
     ROS_INFO("I heard xmax: %i", box.x_max);
     ROS_INFO("I heard ymin: %i", box.y_min);
     ROS_INFO("I heard ymax: %i", box.y_max);*/
-    
-    ROS_INFO("I heard class_name: %s", box.Class_name.c_str());
-    ROS_INFO("I heard probability: %f", box.prob);
-    ROS_INFO("I heard xmin: %i", box.x_min);
-    ROS_INFO("I heard xmax: %i", box.x_max);
-    ROS_INFO("I heard ymin: %i", box.y_min);
-    ROS_INFO("I heard ymax: %i", box.y_max);
-    ROS_INFO("I heard real ymax: %i", box.real_y_max);
-    
+    if(box.Class_name.c_str()!="chair"){
+      ROS_INFO("I heard class_name: %s", box.Class_name.c_str());
+      ROS_INFO("I heard probability: %f", box.prob);
+      ROS_INFO("I heard xmin: %i", box.x_min);
+      ROS_INFO("I heard xmax: %i", box.x_max);
+      ROS_INFO("I heard ymin: %i", box.y_min);
+      ROS_INFO("I heard ymax: %i", box.y_max);
+      ROS_INFO("I heard real ymax: %i", box.real_y_max);
+    }
     std_msgs::Float32 msg_angle;
     std_msgs::Float32 msg_speed;
-
-    if (box.real_y_max<150)
+    int y_thresh = 200;
+    if (box.real_y_max<y_thresh  )// && last_speed != 0)
     {
-      msg_angle.data = 20;
-      msg_speed.data = 0;
+      msg_angle.data = 0;
+      msg_speed.data = 30;
+      last_speed = msg_speed.data;
     }
-    else
+    else if(box.real_y_max>y_thresh && (box.prob> 0.5||box.Class_name.c_str()=="person"))
     {
       msg_angle.data = 0;
       msg_speed.data = 0;
+      last_speed = msg_speed.data;
     }
     //msg_angle.data = 10;
     //msg_speed.data = 10;
