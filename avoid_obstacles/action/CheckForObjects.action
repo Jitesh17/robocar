@@ -1,0 +1,13 @@
+# Check if objects in image
+
+# Goal definition
+int16 id
+sensor_msgs/Image image_raw
+
+---
+# Result definition
+int16 id
+darknet_ros_msgs/BoundingBoxes bounding_boxes
+
+---
+# Feedback definition
