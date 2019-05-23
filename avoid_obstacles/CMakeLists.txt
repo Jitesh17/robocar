@@ -215,9 +215,13 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 
 #include_directories(include $/home/f7-7581/dark_ws/src/darknet_ros)
 
-add_executable(avoid_obstacles src/avoid_obstacles.cpp)
-target_link_libraries(avoid_obstacles ${catkin_LIBRARIES} ${PROJECT_SOURCE_DIR}/lib/libRcControl.so)
-add_dependencies(avoid_obstacles avoid_obstacles_generate_messages_cpp)
+add_executable(avoid_obstacles_node src/avoid_obstacles_node.cpp)
+target_link_libraries(avoid_obstacles_node ${catkin_LIBRARIES} ${PROJECT_SOURCE_DIR}/lib/libRcControl.so)
+add_dependencies(avoid_obstacles_node avoid_obstacles_generate_messages_cpp)
+
+add_executable(avoid_obstacles_stop src/avoid_obstacles_stop.cpp)
+target_link_libraries(avoid_obstacles_stop ${catkin_LIBRARIES} ${PROJECT_SOURCE_DIR}/lib/libRcControl.so)
+add_dependencies(avoid_obstacles_stop avoid_obstacles_generate_messages_cpp)
 
 add_executable(control_robocar src/control_robocar.cpp)
 target_link_libraries(control_robocar ${catkin_LIBRARIES} ${PROJECT_SOURCE_DIR}/lib/libRcControl.so)
